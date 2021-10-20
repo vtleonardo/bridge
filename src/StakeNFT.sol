@@ -7,7 +7,8 @@ import "./Admin.sol";
 import "./EthSafeTransfer.sol";
 import "./ERC20SafeTransfer.sol";
 import "./CircuitBreaker.sol";
-import "./Governance.sol";
+import "./interfaces/IGovernance.sol";
+import "./Governable.sol";
 import "./GovernanceMaxLock.sol";
 import "./MagicValue.sol";
 import "./AtomicCounter.sol";
@@ -15,13 +16,15 @@ import "./interfaces/ICBOpener.sol";
 import "./interfaces/IERC721Transfer.sol";
 import "./interfaces/INFTStake.sol";
 
-contract StakeNFT is ERC721, MagicValue, Admin, Governance, CircuitBreaker, AtomicCounter, EthSafeTransfer, ERC20SafeTransfer, GovernanceMaxLock, ICBOpener, INFTStake {
+contract StakeNFT is ERC721, MagicValue, Admin, CircuitBreaker, AtomicCounter, EthSafeTransfer, ERC20SafeTransfer, GovernanceMaxLock, ICBOpener, INFTStake, Governable {
 
     // _maxMintLock describes the maximum interval a Position may be locked
     // during a call to mintTo
     uint256 constant _maxMintLock = 1051200;
     // 10**18
     uint256 constant _accumulatorScaleFactor = 1000000000000000000;
+
+    //Governance _governance;
 
     // Position describes a staked position
     struct Position {
@@ -80,7 +83,7 @@ contract StakeNFT is ERC721, MagicValue, Admin, Governance, CircuitBreaker, Atom
     uint256 _reserveToken;
 
 
-    constructor(IERC20Transfer MadToken_, address admin_, address governance_) ERC721("MNStake","MNS") Governance(governance_) Admin(admin_) {
+    constructor(IERC20Transfer MadToken_, address admin_, IGovernance governance_) ERC721("MNStake","MNS") Admin(admin_) Governable(governance_) {
         _MadToken = MadToken_;
     }
 
@@ -90,7 +93,7 @@ contract StakeNFT is ERC721, MagicValue, Admin, Governance, CircuitBreaker, Atom
     }
 
     /// @dev sets the governance contract, must only be called by and _admin
-    function setGovernance(address governance_) public override onlyAdmin {
+    function setGovernance(IGovernance governance_) public onlyAdmin {
         _setGovernance(governance_);
     }
 

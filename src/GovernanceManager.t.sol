@@ -5,7 +5,7 @@ import "ds-test/test.sol";
 
 import "./GovernanceManager.sol";
 import "./GovernanceMaxLock.sol";
-import "./GovernanceProposal.sol";
+import "./interfaces/GovernanceProposal.sol";
 import "./GovernanceStorage.sol";
 import "./StakeNFT.sol";
 import "./interfaces/INFTStake.sol";
@@ -38,10 +38,6 @@ contract MockProposalLogic is GovernanceProposal, DSTest {
     bool _isExecuted = false;
 
     function execute() public override virtual returns(bool) {
-        return _execute();
-    }
-
-    function _execute() internal override virtual returns(bool) {
         require(!_isExecuted, "MockProposal: cannot execute more than once!");
         emit log_named_uint("mock executing", 1);
         _isExecuted = true;
@@ -59,18 +55,11 @@ contract ReadSharedStateRaceConditionProposalLogic is GovernanceProposal, DSTest
     bool _isExecuted;
 
     function execute() public override virtual returns(bool) {
-        return _execute();
-    }
-
-    function _execute() internal override virtual returns(bool) {
         require(_isExecuted == false, "ReadSharedStateRaceConditionProposalLogic: this variable should have been initialized to false, but is true because of a race condition in GovernanceProposals executing from GovernanceManager's context (delegatecall).");
+        _isExecuted = true;
         return true;
     }
 
-    // when called from inside the contract, it should return whatever is already 
-    // stored inside `_isExecuted`, assuming there's a boolean on the first 
-    // storage slot.
-    // When called from outside, it should return false.
     function isExecuted() external returns(bool) {
         return _isExecuted;
     }
@@ -101,10 +90,9 @@ contract AdminAccount is BaseMock {
         stakeNFT = stakeNFT_;
         madToken = madToken_;
         governanceManager = governanceManager_;
-        setGovernance(address(governanceManager_));
     }
 
-    function setGovernance(address governance_) public {
+    function setGovernance(IGovernance governance_) public {
         stakeNFT.setGovernance(governance_);
     }
 }
@@ -132,18 +120,17 @@ contract GovernanceManagerTest is DSTest {
             GovernanceManager governanceManager            
         )
     {
-        
         admin = new AdminAccount();
         madToken = new MadTokenMock(address(this));
         stakeNFT = new StakeNFT(
             IERC20Transfer(address(madToken)),
             address(admin),
-            address(address(0x0))
+            IGovernance(address(0))
         );
         minerStake = new MinerStake(stakeNFT);
         governanceManager = new GovernanceManager(address(stakeNFT), address(minerStake));
         admin.setTokens(madToken, stakeNFT, governanceManager);
-        //admin.setGovernance(address(governanceManager)); // implicit on previous line
+        admin.setGovernance(governanceManager);
     }
 
     function newUserAccount(MadTokenMock madToken, StakeNFT stakeNFT, GovernanceManager governanceManager)
@@ -298,21 +285,7 @@ contract GovernanceManagerTest is DSTest {
             )
         );
 
-        /*
-            This holds true because the logic is executed by a delegate call 
-            inside GovernanceManager, therefore using GovernanceManager's 
-            context (storage, caller, etc). Every state variables inside 
-            logic contracts will be allocated after the GovernanceStorage 
-            slots inside GovernanceManager, and that's where they live.
-            As a consequence of this, we cannot inspect the current state 
-            of the logic contract by calling it directly as shown by the 
-            next line of code, i.e. from outside the GovernanceManager's 
-            context (storage, caller, etc).
-            Also worth noting that every logic contract (GovernanceProposal) 
-            shares the same storage slots for state variables, exposing them 
-            to race conditions. Better to keep logic contracts stateless.
-        */
-        assertTrue(!logic.isExecuted());
+        assertTrue(logic.isExecuted());
     }
 
     /// @dev check for race condition on GornanceProposal logic contracts
@@ -389,21 +362,7 @@ contract GovernanceManagerTest is DSTest {
             )
         );
 
-        /*
-            This holds true because the logic is executed by a delegate call 
-            inside GovernanceManager, therefore using GovernanceManager's 
-            context (storage, caller, etc). Every state variables inside 
-            logic contracts will be allocated after the GovernanceStorage 
-            slots inside GovernanceManager, and that's where they live.
-            As a consequence of this, we cannot inspect the current state 
-            of the logic contract by calling it directly as shown by the 
-            next line of code, i.e. from outside the GovernanceManager's 
-            context (storage, caller, etc).
-            Also worth noting that every logic contract (GovernanceProposal) 
-            shares the same storage slots for state variables, exposing them 
-            to race conditions. Better to keep logic contracts stateless.
-        */
-        assertTrue(!logic1.isExecuted());
+        assertTrue(logic1.isExecuted());
 
         assertTrue(!logic2.isExecuted());
 
@@ -415,6 +374,7 @@ contract GovernanceManagerTest is DSTest {
 
         // reverts here
         governanceManager.execute(proposalID2);
+        assertTrue(logic2.isExecuted());
     }
 
 }
