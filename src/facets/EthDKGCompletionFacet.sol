@@ -49,7 +49,14 @@ contract EthDKGCompletionFacet {
 
                 uint32 epoch = uint32(es.validators.epoch()) - 1; // validators is always set to the _next_ epoch
                 uint32 ethHeight = uint32(es.validators.getHeightFromSnapshot(epoch));
-                uint32 madHeight = uint32(es.validators.getMadHeightFromSnapshot(epoch));
+                uint32 madHeight;
+
+                if (es.ethDKGMadHeight != 0) {
+                    madHeight = uint32(es.ethDKGMadHeight);
+                    es.ethDKGMadHeight = 0;
+                } else {
+                    madHeight = uint32(es.validators.getMadHeightFromSnapshot(epoch));
+                }
 
                 emit EthDKGLibrary.ValidatorSet(
                     uint8(es.addresses.length),

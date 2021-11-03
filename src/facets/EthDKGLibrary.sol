@@ -44,6 +44,9 @@ library EthDKGLibrary {
         uint256 T_GPKJ_SUBMISSION_END;
         uint256 T_GPKJ_DISPUTE_END;
         uint256 T_DKG_COMPLETE;
+
+        // arbitrary ethDKG restart from Mad height
+        uint32 ethDKGMadHeight;
     }
 
     function ethDKGStorage() internal pure returns (EthDKGStorage storage es) {
@@ -112,6 +115,7 @@ library EthDKGLibrary {
         es.T_GPKJ_SUBMISSION_END = es.T_MPK_SUBMISSION_END + es.DELTA_CONFIRM + es.DELTA_INCLUDE;
         es.T_GPKJ_DISPUTE_END = es.T_GPKJ_SUBMISSION_END + es.DELTA_CONFIRM + es.DELTA_INCLUDE;
         es.T_DKG_COMPLETE = es.T_GPKJ_DISPUTE_END + es.DELTA_CONFIRM + es.DELTA_INCLUDE;
+        es.ethDKGMadHeight = 0;
 
         emit RegistrationOpen(
             T_CONTRACT_CREATION, es.T_REGISTRATION_END, es.T_SHARE_DISTRIBUTION_END, es.T_DISPUTE_END,
