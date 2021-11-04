@@ -121,4 +121,6 @@ interface ETHDKG is ETHDKGEvents {
 
     function Successful_Completion() external;
 
+    function initializeEthDKGFromArbitraryMadHeight(uint32 _madHeight) external  returns(bool);
+
 }

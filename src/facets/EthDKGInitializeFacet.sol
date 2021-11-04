@@ -31,7 +31,7 @@ contract EthDKGInitializeFacet is AccessControlled, Constants {
         EthDKGLibrary.ethDKGStorage().DELTA_INCLUDE = phaseLength;
     }
 
-    function initializeEthDKGFromArbitraryMadHeight(uint32 _madHeight) public onlyGovernance returns(bool) {
+    function initializeEthDKGFromArbitraryMadHeight(uint32 _madHeight) public returns(bool) {
         EthDKGLibrary.EthDKGStorage storage es = EthDKGLibrary.ethDKGStorage();
 
         uint32 epoch = uint32(es.validators.epoch()) - 1; // validators is always set to the _next_ epoch
