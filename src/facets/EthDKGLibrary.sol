@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT-open-group
-pragma solidity >=0.7.4;
-pragma abicoder v2;
+pragma solidity >=0.8.6;
+//pragma abicoder v2;
 
 import "../interfaces/Validators.sol";
 
@@ -115,7 +115,7 @@ library EthDKGLibrary {
         es.T_GPKJ_SUBMISSION_END = es.T_MPK_SUBMISSION_END + es.DELTA_CONFIRM + es.DELTA_INCLUDE;
         es.T_GPKJ_DISPUTE_END = es.T_GPKJ_SUBMISSION_END + es.DELTA_CONFIRM + es.DELTA_INCLUDE;
         es.T_DKG_COMPLETE = es.T_GPKJ_DISPUTE_END + es.DELTA_CONFIRM + es.DELTA_INCLUDE;
-        es.ethDKGMadHeight = 0;
+        //es.ethDKGMadHeight = 0;
 
         emit RegistrationOpen(
             T_CONTRACT_CREATION, es.T_REGISTRATION_END, es.T_SHARE_DISTRIBUTION_END, es.T_DISPUTE_END,

@@ -205,6 +205,7 @@ contract Setup is Constants {
         update.addFacet(ETHDKG.Successful_Completion.selector, completionFacet);
         update.addFacet(ETHDKG.initializeEthDKG.selector, initFacet);
         update.addFacet(ETHDKG.initializeEthDKGFromArbitraryMadHeight.selector, initFacet);
+        update.addFacet(ETHDKG.getEthDKGMadHeight.selector, initFacet);
         update.addFacet(ETHDKG.updatePhaseLength.selector, initFacet);
         update.addFacet(ETHDKG.submit_dispute.selector, disputeFacet);
         update.addFacet(ETHDKG.submit_master_public_key.selector, mpkFacet);

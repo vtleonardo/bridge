@@ -12,7 +12,7 @@ import "./GovernanceMaxLock.sol";
 import "./MagicValue.sol";
 import "./AtomicCounter.sol";
 import "./interfaces/ICBOpener.sol";
-import "./interfaces/IERC721Transfer.sol";
+//import "./interfaces/IERC721Transfer.sol";
 import "./interfaces/INFTStake.sol";
 
 contract StakeNFT is ERC721, MagicValue, Admin, Governance, CircuitBreaker, AtomicCounter, EthSafeTransfer, ERC20SafeTransfer, GovernanceMaxLock, ICBOpener, INFTStake {
@@ -66,7 +66,7 @@ contract StakeNFT is ERC721, MagicValue, Admin, Governance, CircuitBreaker, Atom
     Accumulator _ethState;
 
     // simple wrapper around MadToken ERC20 contract
-    IERC20Transfer _MadToken;
+    IERC20Transferable _MadToken;
 
     // _positions tracks all staked positions based on tokenID
     mapping (uint256=>Position) _positions;
@@ -80,7 +80,7 @@ contract StakeNFT is ERC721, MagicValue, Admin, Governance, CircuitBreaker, Atom
     uint256 _reserveToken;
 
 
-    constructor(IERC20Transfer MadToken_, address admin_, address governance_) ERC721("MNStake","MNS") Governance(governance_) Admin(admin_) {
+    constructor(IERC20Transferable MadToken_, address admin_, address governance_) ERC721("MNStake","MNS") Governance(governance_) Admin(admin_) {
         _MadToken = MadToken_;
     }
 
@@ -165,7 +165,7 @@ contract StakeNFT is ERC721, MagicValue, Admin, Governance, CircuitBreaker, Atom
     /// this contract in error by a user. This method can not return any funds
     /// sent to the contract via the depositToken method.
     function skimExcessToken(address to_) public onlyAdmin returns(uint256 excess) {
-        IERC20Transfer MadToken;
+        IERC20Transferable MadToken;
         (MadToken, excess) = _estimateExcessToken();
         _safeTransferERC20(MadToken, to_, excess);
         return excess;
@@ -416,7 +416,7 @@ contract StakeNFT is ERC721, MagicValue, Admin, Governance, CircuitBreaker, Atom
 
     // _estimateExcessToken returns the amount of MadToken that is held in the
     // name of this contract
-    function _estimateExcessToken() internal view returns(IERC20Transfer MadToken, uint256 excess) {
+    function _estimateExcessToken() internal view returns(IERC20Transferable MadToken, uint256 excess) {
         uint256 reserve = _reserveToken;
         MadToken = _MadToken;
         uint256 balance = MadToken.balanceOf(address(this));

@@ -31,8 +31,12 @@ contract EthDKGInitializeFacet is AccessControlled, Constants {
         EthDKGLibrary.ethDKGStorage().DELTA_INCLUDE = phaseLength;
     }
 
-    function initializeEthDKGFromArbitraryMadHeight(uint32 _madHeight) public returns(bool) {
+    function initializeEthDKGFromArbitraryMadHeight(uint32 _madHeight) external returns(bool) {
+        // todo: add onlyGovernance modifier
         EthDKGLibrary.EthDKGStorage storage es = EthDKGLibrary.ethDKGStorage();
+
+        // todo: uncomment the next line
+        //require(es.ethDKGMadHeight == 0, "EthDKGInitializeFacet: cannot start arbitrary ethdkg height before completion of previous run");
 
         uint32 epoch = uint32(es.validators.epoch()) - 1; // validators is always set to the _next_ epoch
         uint32 ethHeight = uint32(es.validators.getHeightFromSnapshot(epoch));
@@ -51,7 +55,14 @@ contract EthDKGInitializeFacet is AccessControlled, Constants {
             0x0
         );
 
+        // todo: call initializeState() 
+
         return true;
+    }
+
+    function getEthDKGMadHeight() external view returns(uint32) {
+        EthDKGLibrary.EthDKGStorage storage es = EthDKGLibrary.ethDKGStorage();
+        return es.ethDKGMadHeight;
     }
 
 }
