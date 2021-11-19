@@ -55,7 +55,7 @@ contract EthDKGInitializeFacet is AccessControlled, Constants {
             0x0
         );
 
-        // todo: call initializeState() 
+        //EthDKGLibrary.initializeState();
 
         return true;
     }

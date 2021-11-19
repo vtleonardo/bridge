@@ -8,3 +8,7 @@
 **.DS_Store
 hevm.libs.*
 **/artifacts/**
+outTests/**
+migration/**
+ganache/**
+truffle_output/**

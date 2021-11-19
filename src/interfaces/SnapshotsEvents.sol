@@ -6,5 +6,5 @@ pragma solidity >=0.5.15;
 interface SnapshotsEvents {
 
     /// @notice Event emmitted after taking a snapshot
-    event SnapshotTaken(uint32 chainId, uint256 indexed epoch, uint32 height, address indexed validator, bool startingETHDKG);
+    event SnapshotTaken(uint32 chainId, uint256 indexed epoch, uint32 height, address indexed validator, bool validatorsChanged);
 }

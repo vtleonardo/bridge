@@ -13,7 +13,7 @@ import "../Registry.sol";
 library SnapshotsLibrary {
     bytes32 constant STORAGE_LOCATION = keccak256("snapshots.storage");
 
-    event SnapshotTaken(uint32 chainId, uint256 indexed epoch, uint32 height, address indexed validator, bool startingETHDKG);
+    event SnapshotTaken(uint32 chainId, uint256 indexed epoch, uint32 height, address indexed validator, bool validatorsChanged);
 
     struct Snapshot {
         bool saved;

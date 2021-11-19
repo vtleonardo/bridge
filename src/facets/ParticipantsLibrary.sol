@@ -134,7 +134,7 @@ library ParticipantsLibrary {
         uint256 stake = StakingLibrary.balanceStakeFor(_validator);
 
         if (stake>0) {
-            StakingLibrary.unlockStakeFor(_validator, stake); // If insufficient time has passed this will revert txn
+            //StakingLibrary.unlockStakeFor(_validator, stake); // If insufficient time has passed this will revert txn
             ps.validatorsChanged = true;
         }
 
