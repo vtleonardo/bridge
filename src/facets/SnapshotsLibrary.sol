@@ -26,7 +26,6 @@ library SnapshotsLibrary {
 
     struct SnapshotsStorage {
         mapping(uint256 => Snapshot) snapshots;
-        bool validatorsChanged;     // i.e. when we do nextSnapshot will there be different validators?
         uint256 minEthSnapshotSize;
         uint256 minMadSnapshotSize;
     }
@@ -109,8 +108,10 @@ library SnapshotsLibrary {
         uint32 chainId = extractUint32(_bclaims, 8);
         uint32 height = extractUint32(_bclaims, 12);
 
+        uint256 epoch = cs.epoch;
+
         // Store snapshot
-        Snapshot storage currentSnapshot = ss.snapshots[cs.epoch];
+        Snapshot storage currentSnapshot = ss.snapshots[epoch];
 
         currentSnapshot.saved = true;
         currentSnapshot.rawBlockClaims = _bclaims;
@@ -119,8 +120,8 @@ library SnapshotsLibrary {
         currentSnapshot.madHeight = height;
         currentSnapshot.chainId = chainId;
 
-        if (cs.epoch > 1) {
-            Snapshot memory previousSnapshot = ss.snapshots[cs.epoch-1];
+        if (epoch > 1) {
+            Snapshot memory previousSnapshot = ss.snapshots[epoch-1];
 
             require(
                 !previousSnapshot.saved || block.number >= previousSnapshot.ethHeight + ss.minEthSnapshotSize,
@@ -139,21 +140,21 @@ library SnapshotsLibrary {
 
         for (uint idx=0; idx<ps.validators.length; idx++) {
             if (msg.sender==ps.validators[idx]) {
-                StakingLibrary.lockRewardFor(ps.validators[idx], stakingS.rewardAmount + stakingS.rewardBonus, cs.epoch+2);
+                StakingLibrary.lockRewardFor(ps.validators[idx], stakingS.rewardAmount + stakingS.rewardBonus, epoch+2);
             } else {
-                StakingLibrary.lockRewardFor(ps.validators[idx], stakingS.rewardAmount, cs.epoch+2);
+                StakingLibrary.lockRewardFor(ps.validators[idx], stakingS.rewardAmount, epoch+2);
             }
         }
 
         bool reinitEthdkg;
-        if (ss.validatorsChanged) {
+        if (ps.validatorsChanged) {
             reinitEthdkg = true;
         }
-        ss.validatorsChanged = false;
 
-        emit SnapshotTaken(chainId, cs.epoch, height, msg.sender, ss.validatorsChanged);
+        emit SnapshotTaken(chainId, epoch, height, msg.sender, reinitEthdkg);
 
-        cs.epoch++;
+        ps.validatorsChanged = false;
+        cs.epoch = epoch + 1;
 
         return reinitEthdkg;
     }

@@ -65,4 +65,12 @@ contract ParticipantsFacet is AccessControlled, Constants, Participants, Stoppab
     function setChainId(uint32 _chainId) external override onlyOperator {
         ChainStatusLibrary.setChainId(_chainId);
     }
+
+    function getValidatorChanged() external view override returns (bool) {
+        return ParticipantsLibrary.participantsStorage().validatorsChanged;
+    }
+
+    function setValidatorChanged() external override{
+        ParticipantsLibrary.participantsStorage().validatorsChanged = true;
+    }
 }

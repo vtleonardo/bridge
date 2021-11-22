@@ -3,6 +3,7 @@ pragma solidity >=0.7.4;
 pragma abicoder v2;
 
 import "./StakingLibrary.sol";
+import "./ChainStatusLibrary.sol";
 
 import "../QueueLibrary.sol";
 
@@ -62,6 +63,7 @@ library ParticipantsLibrary {
 
         ParticipantsStorage storage ps = participantsStorage();
         StakingLibrary.StakingStorage storage ss = StakingLibrary.stakingStorage();
+        ChainStatusLibrary.ChainStatusStorage storage cs = ChainStatusLibrary.chainStatusStorage();
 
         require(!ps.validatorPresent[_validator], "validator already present");
         require(StakingLibrary.balanceStakeFor(_validator) >= ss.minimumStake, "insufficient stake");
@@ -73,7 +75,9 @@ library ParticipantsLibrary {
             ps.validatorIndex[_validator] = ps.validators.length - 1;
             ps.validatorPresent[_validator] = true;
             ps.validatorPublicKey[_validator] = _madID;
-            ps.validatorsChanged = true;
+            if (cs.epoch > 1) {
+                ps.validatorsChanged = true;
+            }
             ps.validatorCount++;
 
             emit ValidatorJoined(_validator, _madID);
@@ -89,6 +93,7 @@ library ParticipantsLibrary {
     function addValidator(address _validator, uint256[2] memory _madID) internal returns (uint8) {
 
         ParticipantsStorage storage ps = participantsStorage();
+        ChainStatusLibrary.ChainStatusStorage storage cs = ChainStatusLibrary.chainStatusStorage();
 
         require(
             !ps.validatorPresent[_validator] && ps.validatorCount < ps.validatorMaxCount,
@@ -100,7 +105,9 @@ library ParticipantsLibrary {
         ps.validatorIndex[_validator] = ps.validators.length - 1;
         ps.validatorPresent[_validator] = true;
         ps.validatorPublicKey[_validator] = _madID;
-        ps.validatorsChanged = true;
+        if (cs.epoch > 1) {
+            ps.validatorsChanged = true;
+        }
         ps.validatorCount++;
 
         emit ValidatorJoined(_validator, _madID);

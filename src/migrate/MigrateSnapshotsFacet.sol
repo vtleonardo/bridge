@@ -4,6 +4,7 @@ pragma abicoder v2;
 
 import "../facets/AccessControlLibrary.sol";
 import "../facets/SnapshotsLibrary.sol";
+import "../facets/ParticipantsLibrary.sol";
 
 import "../Constants.sol";
 
@@ -20,6 +21,7 @@ contract MigrateSnapshotsFacet is AccessControlled, Constants {
     ) external onlyOperator {
 
         SnapshotsLibrary.SnapshotsStorage storage ss = SnapshotsLibrary.snapshotsStorage();
+        ParticipantsLibrary.ParticipantsStorage storage ps = ParticipantsLibrary.participantsStorage();
 
         // Extract
         uint32 chainId = SnapshotsLibrary.extractUint32(_bclaims, 8);
@@ -36,11 +38,11 @@ contract MigrateSnapshotsFacet is AccessControlled, Constants {
         currentSnapshot.chainId = chainId;
 
         bool reinitEthdkg;
-        if (ss.validatorsChanged) {
+        if (ps.validatorsChanged) {
             reinitEthdkg = true;
         }
-        ss.validatorsChanged = false;
 
-        emit SnapshotsLibrary.SnapshotTaken(chainId, snapshotId, height, msg.sender, ss.validatorsChanged);
+        emit SnapshotsLibrary.SnapshotTaken(chainId, snapshotId, height, msg.sender, ps.validatorsChanged);
+        ps.validatorsChanged = false;
     }
 }
