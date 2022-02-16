@@ -27,7 +27,7 @@ contract ValidatorPool {
     }
 
     function initializeETHDKG() external {
-        // require(_ethdkg.isAccusationWindowOver(), "cannot init ETHDKG at the moment");
+        // require(_ethdkg.isETHDKGRunning(), "cannot init ETHDKG at the moment");
 
         _ethdkg.initializeETHDKG();
         //require(success, "ValidatorPool: could not init ETHDKG");
@@ -62,6 +62,7 @@ contract ValidatorPool {
         require(index < _validators.length, "Index out boundaries!");
         return _validators[index];
     }
+
 
     function getValidatorAddresses() external view returns (address[] memory addresses) {
         return _validators;
